@@ -32,12 +32,16 @@ Completed work:
 - Route `POST /chat/start` replies through the orchestrator without an external
   provider.
 - Add unit coverage for matching-agent and fallback routing.
+- Persist assistant replies for newly started and continued conversations.
+- Add `POST /chat/:conversationId/message` to continue a conversation.
+- Add `GET /chat/:conversationId` to retrieve message history in chronological
+  order.
 
 Remaining work:
 
 - Model conversation progression and agent state explicitly.
 - Establish deterministic service-comparison tool contracts.
-- Extend API contracts for continuing and retrieving conversations.
+- Add pagination for conversation-history retrieval.
 
 ## Milestone: Product capabilities
 

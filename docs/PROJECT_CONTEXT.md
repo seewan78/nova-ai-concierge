@@ -15,7 +15,12 @@ The API currently provides:
 - `GET /` — the default NestJS hello response.
 - `POST /chat/start` — creates a demo user, a `STARTED` conversation, and its
   first user message; it returns the conversation ID and a deterministic reply
-  from the matching broadband, energy, or mobile agent.
+  from the matching broadband, energy, or mobile agent. Both messages are
+  persisted.
+- `POST /chat/:conversationId/message` — stores a user message and its
+  deterministic assistant reply in an existing conversation.
+- `GET /chat/:conversationId` — returns an existing conversation with its
+  messages ordered by creation time.
 - `GET /health` — a NestJS Terminus liveness health check.
 - `GET /api` — Swagger UI for the HTTP API.
 

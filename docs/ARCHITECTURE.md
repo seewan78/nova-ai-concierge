@@ -34,6 +34,17 @@ Client
   │                                      ├── PrismaService → PostgreSQL
   │                                      └── AiOrchestratorService → first matching agent
   │
+  ├── POST /chat/:conversationId/message { message }
+  │     │
+  │     └── global ValidationPipe → ChatController → ChatService
+  │                                      ├── load conversation and persist USER message
+  │                                      └── orchestrate and persist ASSISTANT message
+  │
+  ├── GET /chat/:conversationId
+  │     │
+  │     └── ChatController → ChatService → load conversation and messages
+  │                                            ordered by createdAt ascending
+  │
   ├── GET /health → HealthController → Terminus HealthCheckService
   └── GET /api → Swagger UI
 ```
@@ -43,8 +54,10 @@ For `POST /chat/start`, `ChatService` currently creates a new demo `User`, a
 Prisma write. It then delegates the reply to `AiOrchestratorService`, which
 selects the first agent whose `canHandle` method matches the message. The
 current agents cover broadband, energy, and mobile; an unmatched message gets a
-deterministic fallback. There is no continuation endpoint, authentication, or
-external AI-provider call yet.
+deterministic fallback. The assistant reply is persisted as a `Message` with
+sender `ASSISTANT`. `POST /chat/:conversationId/message` continues an existing
+conversation, returning `404` when it does not exist. There is no conversation
+pagination, authentication, or external AI-provider call yet.
 
 ## Database models
 
