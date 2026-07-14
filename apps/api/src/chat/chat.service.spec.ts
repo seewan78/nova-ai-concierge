@@ -1,5 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { AiOrchestratorService } from '../ai/orchestrator/ai-orchestrator.service';
+import { ConversationContextService } from '../context/conversation-context.service';
 import { PrismaService } from '../database/prisma.service';
 import { ChatService } from './chat.service';
 
@@ -18,6 +19,9 @@ describe('ChatService', () => {
   let aiOrchestrator: {
     respond: jest.Mock;
   };
+  let conversationContext: {
+    buildContext: jest.Mock;
+  };
   let service: ChatService;
 
   beforeEach(() => {
@@ -33,9 +37,13 @@ describe('ChatService', () => {
     aiOrchestrator = {
       respond: jest.fn(),
     };
+    conversationContext = {
+      buildContext: jest.fn(),
+    };
     service = new ChatService(
       prisma as unknown as PrismaService,
       aiOrchestrator as unknown as AiOrchestratorService,
+      conversationContext as unknown as ConversationContextService,
     );
   });
 
@@ -58,7 +66,12 @@ describe('ChatService', () => {
   });
 
   it('continues an existing conversation and persists both messages', async () => {
-    prisma.conversation.findUnique.mockResolvedValue({ id: conversationId });
+    const context = { intent: 'MOBILE', collectedData: {} };
+    prisma.conversation.findUnique.mockResolvedValue({
+      id: conversationId,
+      messages: [],
+    });
+    conversationContext.buildContext.mockReturnValue(context);
     aiOrchestrator.respond.mockResolvedValue(reply);
 
     await expect(
@@ -72,7 +85,14 @@ describe('ChatService', () => {
         conversationId,
       },
     });
-    expect(aiOrchestrator.respond).toHaveBeenCalledWith('I need a mobile plan');
+    expect(conversationContext.buildContext).toHaveBeenCalledWith(
+      [],
+      'I need a mobile plan',
+    );
+    expect(aiOrchestrator.respond).toHaveBeenCalledWith(
+      'I need a mobile plan',
+      context,
+    );
     expect(prisma.message.create).toHaveBeenNthCalledWith(2, {
       data: {
         sender: 'ASSISTANT',

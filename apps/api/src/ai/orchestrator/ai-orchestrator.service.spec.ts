@@ -32,4 +32,15 @@ describe('AiOrchestratorService', () => {
       "I'm Nova. I can help you compare broadband, energy, or mobile services. What would you like to compare?",
     );
   });
+
+  it('uses context intent when the current message has no matching keyword', async () => {
+    await expect(
+      orchestrator.respond('Yes, please.', {
+        intent: 'ENERGY',
+        collectedData: {},
+      }),
+    ).resolves.toBe(
+      'I can help compare energy suppliers. What is your current provider?',
+    );
+  });
 });

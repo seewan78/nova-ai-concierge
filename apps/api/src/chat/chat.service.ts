@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AiOrchestratorService } from '../ai/orchestrator/ai-orchestrator.service';
+import { ConversationContextService } from '../context/conversation-context.service';
 import { PrismaService } from '../database/prisma.service';
 
 
@@ -9,6 +10,7 @@ export class ChatService {
   constructor(
     private prisma: PrismaService,
     private aiOrchestrator: AiOrchestratorService,
+    private conversationContext: ConversationContextService,
   ) {}
 
 
@@ -55,6 +57,13 @@ export class ChatService {
   async continueConversation(conversationId: string, message: string) {
     const conversation = await this.prisma.conversation.findUnique({
       where: { id: conversationId },
+      include: {
+        messages: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+      },
     });
 
     if (!conversation) {
@@ -69,7 +78,11 @@ export class ChatService {
       },
     });
 
-    const reply = await this.aiOrchestrator.respond(message);
+    const context = this.conversationContext.buildContext(
+      conversation.messages,
+      message,
+    );
+    const reply = await this.aiOrchestrator.respond(message, context);
 
     await this.prisma.message.create({
       data: {
