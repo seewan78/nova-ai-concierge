@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AiOrchestratorService } from '../ai/orchestrator/ai-orchestrator.service';
 import { PrismaService } from '../database/prisma.service';
 
 
@@ -6,7 +7,8 @@ import { PrismaService } from '../database/prisma.service';
 export class ChatService {
 
   constructor(
-    private prisma: PrismaService
+    private prisma: PrismaService,
+    private aiOrchestrator: AiOrchestratorService,
   ) {}
 
 
@@ -34,11 +36,11 @@ export class ChatService {
       });
 
 
+    const reply = await this.aiOrchestrator.respond(message);
+
     return {
       conversationId: conversation.id,
-
-      reply:
-        "Hello, I'm Nova. I can help you compare services. What would you like to compare?"
+      reply,
     };
   }
 

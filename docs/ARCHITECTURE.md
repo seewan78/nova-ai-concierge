@@ -15,9 +15,10 @@ be an integer from 1 through 65535.
 
 | Module | Responsibility |
 | --- | --- |
-| `AppModule` | Composes global configuration, database, chat, and health modules. |
+| `AppModule` | Composes global configuration, AI, database, chat, and health modules. |
 | `DatabaseModule` | Exports the shared `PrismaService`. |
 | `ChatModule` | Exposes the initial chat endpoint and its persistence service. |
+| `AiModule` | Registers deterministic service-domain agents and exports the orchestrator. |
 | `HealthModule` | Exposes the Terminus health endpoint. |
 
 There is also a default root controller/service from the NestJS starter.
@@ -30,8 +31,8 @@ Client
   ├── POST /chat/start { message }
   │     │
   │     └── global ValidationPipe → ChatController → ChatService
-  │                                      │
-  │                                      └── PrismaService → PostgreSQL
+  │                                      ├── PrismaService → PostgreSQL
+  │                                      └── AiOrchestratorService → first matching agent
   │
   ├── GET /health → HealthController → Terminus HealthCheckService
   └── GET /api → Swagger UI
@@ -39,8 +40,11 @@ Client
 
 For `POST /chat/start`, `ChatService` currently creates a new demo `User`, a
 `Conversation` in `STARTED` state, and one `Message` from `USER` in a nested
-Prisma write. It then returns a fixed greeting. There is no continuation
-endpoint, authentication, AI provider call, or service-comparison workflow yet.
+Prisma write. It then delegates the reply to `AiOrchestratorService`, which
+selects the first agent whose `canHandle` method matches the message. The
+current agents cover broadband, energy, and mobile; an unmatched message gets a
+deterministic fallback. There is no continuation endpoint, authentication, or
+external AI-provider call yet.
 
 ## Database models
 
@@ -56,8 +60,9 @@ data store.
 
 ## Future target architecture
 
-The next stage is an AI Agent Framework, not external AI-provider integration.
-The target remains a modular NestJS backend, with clear boundaries for:
+The initial AI Agent Framework is implemented without external AI-provider
+integration. The target remains a modular NestJS backend, with clear boundaries
+for:
 
 - conversation lifecycle and message persistence;
 - agent orchestration, state, and deterministic tool contracts;

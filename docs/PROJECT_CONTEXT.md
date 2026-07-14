@@ -4,8 +4,8 @@
 
 Nova AI Concierge is being built as a concierge-style service that will help
 users compare services and make informed choices. The current API presents the
-first chat entry point; its response describes the intended service-comparison
-use case. AI provider integration and agent behaviour are deliberately not
+first chat entry point and routes service-comparison requests to internal,
+provider-free agents. External AI provider integration is deliberately not
 implemented yet.
 
 ## Current capabilities
@@ -14,7 +14,8 @@ The API currently provides:
 
 - `GET /` — the default NestJS hello response.
 - `POST /chat/start` — creates a demo user, a `STARTED` conversation, and its
-  first user message; it returns the conversation ID and a fixed Nova greeting.
+  first user message; it returns the conversation ID and a deterministic reply
+  from the matching broadband, energy, or mobile agent.
 - `GET /health` — a NestJS Terminus liveness health check.
 - `GET /api` — Swagger UI for the HTTP API.
 

@@ -9,7 +9,7 @@ Completed work:
 - NestJS API scaffold with TypeScript.
 - PostgreSQL 16 Docker Compose service.
 - Prisma 7 schema and initial migration for users, conversations, and messages.
-- Initial `POST /chat/start` persistence flow and fixed concierge greeting.
+- Initial `POST /chat/start` persistence flow.
 - Global configuration loading and startup validation for `DATABASE_URL`.
 - Global request validation with class-validator and class-transformer.
 - Swagger UI at `/api`.
@@ -20,14 +20,23 @@ and repository hygiene without prematurely introducing agent or provider logic.
 
 ## Milestone: AI Agent Framework
 
-Status: next.
+Status: in progress.
 
-Planned outcomes:
+Completed work:
 
-- Define agent, tool, and orchestration interfaces.
+- Define the `Agent` interface and an injection token for ordered agent
+  registration.
+- Add a deterministic `AiOrchestratorService` that selects the first matching
+  agent or returns a fallback response.
+- Add broadband, energy, and mobile comparison agents.
+- Route `POST /chat/start` replies through the orchestrator without an external
+  provider.
+- Add unit coverage for matching-agent and fallback routing.
+
+Remaining work:
+
 - Model conversation progression and agent state explicitly.
 - Establish deterministic service-comparison tool contracts.
-- Add testable orchestration flows independent of an external model provider.
 - Extend API contracts for continuing and retrieving conversations.
 
 ## Milestone: Product capabilities
